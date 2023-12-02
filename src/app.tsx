@@ -20,6 +20,8 @@ import { currentUser as queryCurrentUser, fetchMenuData } from './services/login
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 
+// 详情看：https://v3.umijs.org/zh-CN/plugins/plugin-layout
+
 /** 获取用户信息比较慢的时候会展示一个 loading */
 // https://pro.ant.design/zh-CN/config/runtime-api#initialstateconfig
 export const initialStateConfig = {
@@ -64,7 +66,7 @@ export async function getInitialState(): Promise<{
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
   return {
-    rightContentRender: () => <RightContent />,
+    rightContentRender: () => <RightContent />, // antd-pro默认的
     disableContentMargin: false,
     waterMarkProps: {
       content: initialState?.currentUser?.username,
@@ -91,7 +93,8 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
         ]
       : [],
     menuHeaderRender: undefined,
-
+    
+    // 参考：https://beta-pro.ant.design/docs/advanced-menu-cn
     menu: {
       // 每当 initialState?.currentUser?.userid 发生修改时重新执行 request
       params: {
@@ -141,7 +144,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     headerContentRender: () => {
       return (
         <Space>
-          <Divider type="vertical" />
+          {/* <Divider type="vertical" />
           <Dropdown
             placement="top"
             overlay={
@@ -237,7 +240,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
                 <CaretDownFilled />
               </Space>
             </a>
-          </Dropdown>
+          </Dropdown> */}
         </Space>
       );
     },
@@ -295,9 +298,9 @@ const unauthorizedInterceptor = (response: Response) => {
 
 export const request: RequestConfig = {
   // 新增自动添加AccessToken的请求前拦截器
-  requestInterceptors: [authHeaderInterceptor],
-  responseInterceptors: [unauthorizedInterceptor],
-  errorConfig: {
+  requestInterceptors: [authHeaderInterceptor], // 请求拦截器数组。在请求发送前会执行这些拦截器，这里包含了 authHeaderInterceptor，它是一个用于在请求中自动添加 AccessToken 的拦截器。
+  responseInterceptors: [unauthorizedInterceptor], // 响应拦截器数组。在收到响应后会执行这些拦截器，这里包含了 unauthorizedInterceptor，可能用于处理未授权的响应。
+  errorConfig: { // 错误适配器（adaptor），用于对错误信息进行处理。在这个例子中，它简单地将错误信息的结构进行了修改，并添加了一个默认的错误消息。
     adaptor: (resData) => {
       return {
         ...resData,

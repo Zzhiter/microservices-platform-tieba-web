@@ -85,6 +85,10 @@
     path: '/generator/list.html',
     component: './system/Generator',
   },
+  // {
+  //   path: '/datasource/list.html',
+  //   component: './system/Datasource',
+  // },
   {
     path: '/welcome',
     name: 'welcome',

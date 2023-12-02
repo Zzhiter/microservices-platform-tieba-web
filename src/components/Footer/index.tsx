@@ -19,12 +19,12 @@ const Footer: React.FC = () => {
         {
           key: 'github',
           title: <GithubOutlined />,
-          href: 'https://github.com/zlt2000/microservices-platform',
+          href: 'https://github.com/Zzhiter/microservices-platform-tieba',
           blankTarget: true,
         },
         {
           key: 'beian',
-          title: '粤ICP备19081412号',
+          title: 'buaa',
           href: 'https://beian.miit.gov.cn/',
           blankTarget: true,
         },
