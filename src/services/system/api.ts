@@ -189,6 +189,14 @@ export async function generator(params?: { [key: string]: string | number }) {
   return { data: result.data, total: result.count };
 }
 
+export async function queryTables(params?: any) {
+  const result = await request<SYSTEM.Page<SYSTEM.Table>>('/api-user/tables/all', {
+    method: 'GET',
+    params,
+  });
+  return {data:result.data, total: result.count};
+}
+
 export function exportGenerator(tables: string) {
   return request('/api-generator/generator/code', {
     method: 'GET',
@@ -244,6 +252,22 @@ export async function deleteToken(token: string) {
   const result = await request<API.Result<void>>(url, {
     method: 'DELETE',
     params: {token}
+  });
+  return result;
+}
+
+export async function createTable(data: any) {
+  const result = await request<API.Result<void>>('/api-your-table-endpoint', {
+    method: 'POST',
+    data,
+  });
+  return result;
+}
+
+export async function deleteTable(id: number) {
+  const url = `/api-your-table-endpoint/${id}`;
+  const result = await request<API.Result<void>>(url, {
+    method: 'DELETE',
   });
   return result;
 }

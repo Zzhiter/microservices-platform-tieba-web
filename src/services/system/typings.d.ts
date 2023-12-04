@@ -8,6 +8,13 @@ declare namespace SYSTEM {
     data: T[];
   };
 
+  type Table = {
+    table_id: number;
+    table_name: string;
+    tenant_id: string;
+    table_description?: string;
+  }
+
   type Role = {
     id: number;
     createTime?: Date;
