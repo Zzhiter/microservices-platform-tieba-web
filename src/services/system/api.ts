@@ -194,7 +194,7 @@ export async function queryTables(params?: any) {
     method: 'GET',
     params,
   });
-  return {data:result.data, total: result.count};
+  return {data: result.data, total: result.count};
 }
 
 export async function queryTableNames(params?: any) {
@@ -202,7 +202,15 @@ export async function queryTableNames(params?: any) {
     method: 'GET',
     params,
   });
-  return {data:result.data, total: result.count};
+  return {data: result.data, total: result.count};
+}
+
+export async function queryTableColumns(tableName: string) {
+  const result = await request<SYSTEM.Page<SYSTEM.TableField>>('/api-user/tables/columns', {
+    method: 'GET',
+    params: { tableName },
+  });
+  return {data: result.data, total: result.count};
 }
 
 

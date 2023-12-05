@@ -19,6 +19,14 @@ declare namespace SYSTEM {
     table_name: string;
   };
 
+  type TableField = {
+    fieldId: number;
+    tableId: number;
+    fieldName: string;
+    dataType: string;
+    isNullable: boolean;
+  };
+
   type Role = {
     id: number;
     createTime?: Date;
