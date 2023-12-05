@@ -15,6 +15,10 @@ declare namespace SYSTEM {
     table_description?: string;
   }
 
+  type TableName = {
+    table_name: string;
+  };
+
   type Role = {
     id: number;
     createTime?: Date;

@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { PageContainer, ProFormText, ProTable, QueryFilter } from '@ant-design/pro-components';
+import { PageContainer, ProFormSelect, ProFormText, ProTable, QueryFilter } from '@ant-design/pro-components';
 import { Button, Typography } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import { queryTables, createTable, deleteTable } from '@/services/system/api'; // 替换为实际的 API 调用方法
+import { queryTables, createTable, deleteTable, queryTableNames } from '@/services/system/api'; // 替换为实际的 API 调用方法
 
 const { Link } = Typography;
 
 const Datasource: React.FC = () => {
   const [params, setParams] = useState<Record<string, string | number>>();
   const [createModalVisible, setCreateModalVisible] = useState(false);
+  const [selectedTableName, setSelectedTableName] = useState<string | undefined>();
+  const [tableNames, setTableNames] = useState<string[]>([]);
 
-//   useEffect(() => {
-//     queryTables()
-//   }, [])
+
+  useEffect(() => {
+    // 获取业务线下的所有表名
+    queryTableNames().then((data) => setTableNames(data.data));
+  }, []);
 
   const columns = [
     {
@@ -31,17 +35,14 @@ const Datasource: React.FC = () => {
       key: 'table_description',
     },
     {
-      title: 'id',
-      dataIndex: 'table_id',
-      key: 'table_id',
-    //   title: '操作',
-    //   key: 'action',
-    //   render: (_, record) => (
-    //     <>
-    //       <Link onClick={() => handleEditTable(record)}>编辑</Link>
-    //       <DeleteOutlined style={{ color: 'red', marginLeft: 8 }} onClick={() => handleDeleteTable(record)} />
-    //     </>
-    //   ),
+      title: '操作',
+      key: 'action',
+      render: (_, record) => (
+        <>
+          <Link onClick={() => handleEditTable(record)}>编辑</Link>
+          <DeleteOutlined style={{ color: 'red', marginLeft: 8 }} onClick={() => handleDeleteTable(record)} />
+        </>
+      ),
     },
   ];
 
@@ -88,13 +89,19 @@ const Datasource: React.FC = () => {
         </Button>,
       ]}
     >
-      <QueryFilter
-        defaultCollapsed
-        split
-        span={6}
-        onFinish={async (values) => setParams(values)}
-      >
-        <ProFormText name="table_name" label="搜索" placeholder="输入表名" />
+      <QueryFilter span={6}>
+        <ProFormSelect
+          name="table_name"
+          label="选择表"
+          placeholder="请选择表"
+          options={tableNames.map((name) => ({ label: name, value: name }))}
+          fieldProps={{
+            showSearch: true,
+            filterOption: (input, option) =>
+              option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0,
+          }}
+          // onChange={handleSelectTable}
+        />
       </QueryFilter>
       <ProTable
         headerTitle="数据表列表"
@@ -106,8 +113,7 @@ const Datasource: React.FC = () => {
           showSizeChanger: true,
           showQuickJumper: true,
         }}
-      >
-      </ProTable>
+      />
 
     </PageContainer>
   );

@@ -197,6 +197,15 @@ export async function queryTables(params?: any) {
   return {data:result.data, total: result.count};
 }
 
+export async function queryTableNames(params?: any) {
+  const result = await request<SYSTEM.Page<SYSTEM.TableName>>('/api-user/tables/names', {
+    method: 'GET',
+    params,
+  });
+  return {data:result.data, total: result.count};
+}
+
+
 export function exportGenerator(tables: string) {
   return request('/api-generator/generator/code', {
     method: 'GET',
