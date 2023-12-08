@@ -189,12 +189,12 @@ export async function generator(params?: { [key: string]: string | number }) {
   return { data: result.data, total: result.count };
 }
 
-export async function queryTables(params?: any) {
-  const result = await request<SYSTEM.Page<SYSTEM.Table>>('/api-user/tables/all', {
+export async function queryTables(params: any) {
+  const result = await request<SYSTEM.Page<any>>('/api-user/tables/all', {
     method: 'GET',
-    params,
+    params: params,
   });
-  return {data: result.data, total: result.count};
+  return {data: result.data, success: true, total: result.count};
 }
 
 export async function queryTableNames(params?: any) {

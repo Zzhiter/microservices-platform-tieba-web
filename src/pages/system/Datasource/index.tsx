@@ -15,7 +15,7 @@ type column = {
 const Datasource: React.FC = () => {
   const [params, setParams] = useState<Record<string, string | number>>();
   const [createModalVisible, setCreateModalVisible] = useState(false);
-  const [selectedTableName, setSelectedTableName] = useState<string | undefined>();
+  const [selectedTableName, setSelectedTableName] = useState<string>("");
   const [tableColumns, setTableColumns] = useState<any[]>([]); // 用于存储表格列信息
   const [tableNames, setTableNames] = useState<string[]>([]);
 
@@ -38,7 +38,7 @@ const Datasource: React.FC = () => {
       dataIndex: field.fieldName,
       key: field.fieldName
     }));
-    console.log("res:", res);
+    // console.log("res:", res);
     return res;
   };
   
@@ -71,18 +71,11 @@ const Datasource: React.FC = () => {
   //   },
   // ];
 
-  // const handleSelectTable = async (value: {tableName: string, label: string}) => {
-  //   // 用户选择表名后，根据选择的表名查询对应的数据
-  //   console.log("hhhhhhhhhhhhhhh")
-  //   setSelectedTableName(value.tableName);
-  //   setParams({});
-  // };
-
   const handleSelectTable = async (value: string) => {
     // 用户选择表名后，根据选择的表名查询对应的数据
     console.log("选择的表名：", value);
     setSelectedTableName(value);
-    setParams({});
+    setParams({tableName: value});
   };
   
 
@@ -146,7 +139,34 @@ const Datasource: React.FC = () => {
       <ProTable
         headerTitle="数据表列表"
         columns={tableColumns}
-        request={queryTables} // 替换为实际的数据请求方法
+        // request={queryTables(selectedTableName)} 
+        request={async (
+          // 第一个参数 params 查询表单和 params 参数的结合
+          // 第一个参数中一定会有 pageSize 和  current ，这两个参数是 antd 的规范
+          params: T & {
+            pageSize: number;
+            current: number;
+            tableName: string;
+          },
+          sort,
+          filter,
+        ) => {
+          // 这里需要返回一个 Promise,在返回之前你可以进行数据转化
+          // 如果需要转化参数可以在这里进行修改
+          const msg = await queryTables({
+            page: params.current,
+            pageSize: params.pageSize,
+            tableName: params.tableName,
+          });
+          return {
+            data: msg.data,
+            // success 请返回 true，
+            // 不然 table 会停止解析数据，即使有数据
+            success: msg.success,
+            // 不传会使用 data 的长度，如果是分页一定要传
+            total: msg.total,
+          };
+        }}
         search={false}
         params={params}
         pagination={{
