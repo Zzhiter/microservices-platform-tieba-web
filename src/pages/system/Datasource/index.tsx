@@ -1,4 +1,5 @@
 import type { ProColumns } from '@ant-design/pro-components';
+import { message, Spin } from 'antd';
 import {
   EditableProTable,
   ProCard,
@@ -7,7 +8,7 @@ import {
   QueryFilter, ProFormSelect
 } from '@ant-design/pro-components';
 import React, { useState, useEffect } from 'react';
-import { queryTables, createTable, deleteTable, queryTableNames, queryTableColumns } from '@/services/system/api'; // 替换为实际的 API 调用方法
+import { queryTables, createTable, deleteTable, queryTableNames, queryTableColumns, updateTables } from '@/services/system/api'; // 替换为实际的 API 调用方法
 
 const waitTime = (time: number = 100) => {
   return new Promise((resolve) => {
@@ -60,6 +61,7 @@ export default () => {
   const [selectedTableName, setSelectedTableName] = useState<string>("");
   const [tableColumns, setTableColumns] = useState<any[]>([]); // 用于存储表格列信息
   const [tableNames, setTableNames] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
   // const columns: ProColumns<DataSourceType>[] = [
   //   {
@@ -209,6 +211,7 @@ export default () => {
 
   return (
     <>
+    
     <QueryFilter span={6}>
         <ProFormSelect
           name="table_name"
@@ -223,6 +226,7 @@ export default () => {
           onChange={handleSelectTable}
         />
       </QueryFilter>
+      <Spin spinning={loading}>
       {selectedTableName && <EditableProTable
         rowKey="id"
         headerTitle="可编辑表格"
@@ -301,14 +305,48 @@ export default () => {
         params={params}
         editable={{
           type: 'multiple',
-          editableKeys,
-          onSave: async (rowKey, data, row) => {
-            console.log(rowKey, data, row);
-            await waitTime(2000);
+          onSave: async (rowKey, data, row, newLineConfig) => {
+            console.log("保存编辑后的数据：", rowKey, data, row);
+    
+            // Set loading to true
+            setLoading(true);
+    
+            try {
+              const res = await updateTables(data, selectedTableName);
+              // await waitTime(1000);
+    
+              if (res.success !== 0) {
+                // Handle the case when the update was not successful
+                console.error("Update failed:", res.message);
+                // Display a pop-up message to the user
+                message.error(`Failed to save data: ${res.message}`);
+              } else {
+                // Update was successful
+                // Provide feedback to the user if needed
+                message.success('Data saved successfully');
+                // // Update the corresponding row in dataSource with the new data
+                // setDataSource((prevData) =>
+                //   prevData.map((item) =>
+                //     item.id === rowKey ? { ...item, ...data } : item
+                //   )
+                // );
+              }
+            } catch (error) {
+              // Handle unexpected errors during the update
+              console.error(
+                "An unexpected error occurred during the update:",
+                error
+              );
+              // Display a pop-up message to the user
+              message.error('An unexpected error occurred. Please try again.');
+            } finally {
+              // Ensure to set loading to false, regardless of success or failure
+              setLoading(false);
+            }
           },
-          onChange: setEditableRowKeys,
         }}
       />}
+    </Spin>
     </>
   );
 };

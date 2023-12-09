@@ -197,6 +197,15 @@ export async function queryTables(params: any) {
   return {data: result.data, success: true, total: result.count};
 }
 
+export async function updateTables(params: any, tableName: string) {
+  const result = await request<SYSTEM.Page<any>>(`/api-user/tables/${tableName}`, {
+    method: 'POST',
+    // params: params,
+    data: params, // Use data property instead of params
+  });
+  return {data: result.data, success: result.code, total: result.count};
+}
+
 export async function queryTableNames(params?: any) {
   const result = await request<SYSTEM.Page<SYSTEM.TableName>>('/api-user/tables/names', {
     method: 'GET',
