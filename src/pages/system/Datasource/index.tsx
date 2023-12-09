@@ -1,24 +1,155 @@
-import React, { useEffect, useState } from 'react';
-import { PageContainer, ProFormSelect, ProFormText, ProTable, QueryFilter } from '@ant-design/pro-components';
-import { Button, Typography, Select } from 'antd';
-import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import type { ProColumns } from '@ant-design/pro-components';
+import {
+  EditableProTable,
+  ProCard,
+  ProFormField,
+  ProFormRadio,
+  QueryFilter, ProFormSelect
+} from '@ant-design/pro-components';
+import React, { useState, useEffect } from 'react';
 import { queryTables, createTable, deleteTable, queryTableNames, queryTableColumns } from '@/services/system/api'; // 替换为实际的 API 调用方法
 
-const { Link } = Typography;
-
-type column = {
-  title: string;
-  dataIndex: string;
-  key: string;
+const waitTime = (time: number = 100) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(true);
+    }, time);
+  });
 };
 
-const Datasource: React.FC = () => {
+type DataSourceType = {
+  id: React.Key;
+  title?: string;
+  readonly?: string;
+  decs?: string;
+  state?: string;
+  created_at?: number;
+  update_at?: number;
+  children?: DataSourceType[];
+};
+
+const defaultData: DataSourceType[] = [
+  {
+    id: 624748504,
+    title: '活动名称一',
+    readonly: '活动名称一',
+    decs: '这个活动真好玩',
+    state: 'open',
+    created_at: 1590486176000,
+    update_at: 1590486176000,
+  },
+  {
+    id: 624691229,
+    title: '活动名称二',
+    readonly: '活动名称二',
+    decs: '这个活动真好玩',
+    state: 'closed',
+    created_at: 1590481162000,
+    update_at: 1590481162000,
+  },
+];
+
+export default () => {
+  const [editableKeys, setEditableRowKeys] = useState<React.Key[]>([]);
+  const [dataSource, setDataSource] = useState<readonly DataSourceType[]>([]);
+  const [position, setPosition] = useState<'top' | 'bottom' | 'hidden'>(
+    'bottom',
+  );
   const [params, setParams] = useState<Record<string, string | number>>();
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const [selectedTableName, setSelectedTableName] = useState<string>("");
   const [tableColumns, setTableColumns] = useState<any[]>([]); // 用于存储表格列信息
   const [tableNames, setTableNames] = useState<string[]>([]);
 
+  // const columns: ProColumns<DataSourceType>[] = [
+  //   {
+  //     title: '活动名称',
+  //     dataIndex: 'title',
+  //     tooltip: '只读，使用form.getFieldValue获取不到值',
+  //     formItemProps: (form, { rowIndex }) => {
+  //       return {
+  //         rules:
+  //           rowIndex > 1 ? [{ required: true, message: '此项为必填项' }] : [],
+  //       };
+  //     },
+  //     // 第一行不允许编辑
+  //     editable: (text, record, index) => {
+  //       return index !== 0;
+  //     },
+  //     width: '15%',
+  //   },
+  //   {
+  //     title: '活动名称二',
+  //     dataIndex: 'readonly',
+  //     tooltip: '只读，使用form.getFieldValue可以获取到值',
+  //     readonly: true,
+  //     width: '15%',
+  //   },
+  //   {
+  //     title: '状态',
+  //     key: 'state',
+  //     dataIndex: 'state',
+  //     valueType: 'select',
+  //     valueEnum: {
+  //       all: { text: '全部', status: 'Default' },
+  //       open: {
+  //         text: '未解决',
+  //         status: 'Error',
+  //       },
+  //       closed: {
+  //         text: '已解决',
+  //         status: 'Success',
+  //       },
+  //     },
+  //   },
+  //   {
+  //     title: '描述',
+  //     dataIndex: 'decs',
+  //     fieldProps: (form, { rowKey, rowIndex }) => {
+  //       if (form.getFieldValue([rowKey || '', 'title']) === '不好玩') {
+  //         return {
+  //           disabled: true,
+  //         };
+  //       }
+  //       if (rowIndex > 9) {
+  //         return {
+  //           disabled: true,
+  //         };
+  //       }
+  //       return {};
+  //     },
+  //   },
+  //   {
+  //     title: '活动时间',
+  //     dataIndex: 'created_at',
+  //     valueType: 'date',
+  //   },
+  //   {
+  //     title: '操作',
+  //     valueType: 'option',
+  //     width: 200,
+  //     render: (text, record, _, action) => [
+  //       <a
+  //         key="editable"
+  //         onClick={() => {
+  //           action?.startEditable?.(record.id);
+  //         }}
+  //       >
+  //         编辑
+  //       </a>,
+  //       <a
+  //         key="delete"
+  //         onClick={() => {
+  //           setDataSource(dataSource.filter((item) => item.id !== record.id));
+  //         }}
+  //       >
+  //         删除
+  //       </a>,
+  //     ],
+  //   },
+  // ];
+
+  
 
   useEffect(() => {
     // 获取业务线下的所有表名
@@ -32,44 +163,42 @@ const Datasource: React.FC = () => {
     }
   }, [selectedTableName]);
 
+  const last_column: any = {
+    title: '操作',
+    valueType: 'option',
+    width: 200,
+    render: (text, record, _, action) => [
+      <a
+        key="editable"
+        onClick={() => {
+          console.log("点击了开始编辑哦!")
+          action?.startEditable?.(record.id);
+          console.log(editableKeys)
+        }}
+      >
+        编辑
+      </a>,
+      <a
+        key="delete"
+        onClick={() => {
+          console.log("删除护具！")
+          // setDataSource(dataSource.filter((item) => item.id !== record.id));
+        }}
+      >
+        删除
+      </a>,
+    ],
+  }
+
   const buildTableColumns = (data: SYSTEM.TableField[]): column[] => {
     const res = data.map(field => ({
       title: field.fieldName,
       dataIndex: field.fieldName,
       key: field.fieldName
     }));
-    // console.log("res:", res);
+    res.push(last_column);
     return res;
   };
-  
-
-  // const columns = [
-  //   {
-  //     title: '表名',
-  //     dataIndex: 'table_name',
-  //     key: 'table_name',
-  //   },
-  //   {
-  //     title: '业务线',
-  //     dataIndex: 'tenant_id',
-  //     key: 'tenant_id',
-  //   },
-  //   {
-  //     title: '描述',
-  //     dataIndex: 'table_description',
-  //     key: 'table_description',
-  //   },
-  //   {
-  //     title: '操作',
-  //     key: 'action',
-  //     render: (_, record) => (
-  //       <>
-  //         <Link onClick={() => handleEditTable(record)}>编辑</Link>
-  //         <DeleteOutlined style={{ color: 'red', marginLeft: 8 }} onClick={() => handleDeleteTable(record)} />
-  //       </>
-  //     ),
-  //   },
-  // ];
 
   const handleSelectTable = async (value: string) => {
     // 用户选择表名后，根据选择的表名查询对应的数据
@@ -77,52 +206,10 @@ const Datasource: React.FC = () => {
     setSelectedTableName(value);
     setParams({tableName: value});
   };
-  
-
-  const handleCreateTable = async (values) => {
-    await createTable(values);
-    setCreateModalVisible(false);
-  };
-
-  const handleDeleteTable = async (record) => {
-    await deleteTable(record.table_id);
-    // 刷新表格数据
-    setParams({});
-  };
-
-  const handleEditTable = (record) => {
-    // 编辑表格的逻辑，可以根据实际情况处理
-    console.log('Edit table:', record);
-  };
 
   return (
-    <PageContainer
-      header={{
-        title: '数据表管理',
-        breadcrumb: {
-          routes: [
-            {
-              path: '/',
-              breadcrumbName: '首页',
-            },
-            {
-              path: '/table-management',
-              breadcrumbName: '数据表管理',
-            },
-          ],
-        },
-        subTitle: '管理系统中的数据表',
-      }}
-      extra={[
-        // <Button key="new" type="primary" icon={<PlusOutlined />} onClick={() => queryTables()}>
-        //   获取数据
-        // </Button>,
-        <Button key="new" type="primary" icon={<PlusOutlined />} onClick={() => setCreateModalVisible(true)}>
-          新建表格
-        </Button>,
-      ]}
-    >
-      <QueryFilter span={6}>
+    <>
+    <QueryFilter span={6}>
         <ProFormSelect
           name="table_name"
           label="选择表"
@@ -136,10 +223,46 @@ const Datasource: React.FC = () => {
           onChange={handleSelectTable}
         />
       </QueryFilter>
-      <ProTable
-        headerTitle="数据表列表"
+      {selectedTableName && <EditableProTable
+        rowKey="id"
+        headerTitle="可编辑表格"
+        maxLength={5}
+        scroll={{
+          x: 960,
+        }}
+        recordCreatorProps={
+          position !== 'hidden'
+            ? {
+                position: position as 'top',
+                record: () => ({ id: (Math.random() * 1000000).toFixed(0) }),
+              }
+            : false
+        }
+        loading={false}
+        toolBarRender={() => [
+          <ProFormRadio.Group
+            key="render"
+            fieldProps={{
+              value: position,
+              onChange: (e) => setPosition(e.target.value),
+            }}
+            options={[
+              {
+                label: '添加到顶部',
+                value: 'top',
+              },
+              {
+                label: '添加到底部',
+                value: 'bottom',
+              },
+              {
+                label: '隐藏',
+                value: 'hidden',
+              },
+            ]}
+          />,
+        ]}
         columns={tableColumns}
-        // request={queryTables(selectedTableName)} 
         request={async (
           // 第一个参数 params 查询表单和 params 参数的结合
           // 第一个参数中一定会有 pageSize 和  current ，这两个参数是 antd 的规范
@@ -154,12 +277,18 @@ const Datasource: React.FC = () => {
           // 这里需要返回一个 Promise,在返回之前你可以进行数据转化
           // 如果需要转化参数可以在这里进行修改
           const msg = await queryTables({
-            page: params.current,
-            pageSize: params.pageSize,
+            // page: params.current,
+            page: 1,
+            // pageSize: params.pageSize,
+            pageSize: 10,
             tableName: params.tableName,
           });
+          let counter = 1;
           return {
-            data: msg.data,
+            data: msg.data.map(item => ({
+              id: counter++,
+              ...item,
+            })),
             // success 请返回 true，
             // 不然 table 会停止解析数据，即使有数据
             success: msg.success,
@@ -167,16 +296,19 @@ const Datasource: React.FC = () => {
             total: msg.total,
           };
         }}
-        search={false}
+        // value={dataSource}
+        // onChange={setDataSource}
         params={params}
-        pagination={{
-          showSizeChanger: true,
-          showQuickJumper: true,
+        editable={{
+          type: 'multiple',
+          editableKeys,
+          onSave: async (rowKey, data, row) => {
+            console.log(rowKey, data, row);
+            await waitTime(2000);
+          },
+          onChange: setEditableRowKeys,
         }}
-      />
-
-    </PageContainer>
+      />}
+    </>
   );
 };
-
-export default Datasource;
