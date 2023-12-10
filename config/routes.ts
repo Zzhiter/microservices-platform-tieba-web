@@ -90,6 +90,10 @@
     component: './system/Datasource',
   },
   {
+    path: '/review/comments.html',
+    component: './system/Review',
+  },
+  {
     path: '/welcome',
     name: 'welcome',
     icon: 'smile',

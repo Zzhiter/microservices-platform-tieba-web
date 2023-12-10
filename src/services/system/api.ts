@@ -197,6 +197,14 @@ export async function queryTables(params: any) {
   return {data: result.data, success: true, total: result.count};
 }
 
+export async function batchUpdatePost(params: any, tableName: string) {
+  const result = await request<SYSTEM.Page<any>>(`/api-user/tables/${tableName}/batch-update`, {
+    method: 'POST',
+    data: params,
+  });
+  return { success: result.code, message: result.message };
+}
+
 export async function updateTables(params: any, tableName: string) {
   const result = await request<SYSTEM.Page<any>>(`/api-user/tables/${tableName}`, {
     method: 'POST',
