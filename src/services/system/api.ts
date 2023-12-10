@@ -206,6 +206,15 @@ export async function updateTables(params: any, tableName: string) {
   return {data: result.data, success: result.code, total: result.count};
 }
 
+// frontend service method to delete a record
+export async function deleteRecord(recordId: number, tableName: string) {
+  const result = await request(`/api-user/tables/${tableName}/${recordId}`, {
+    method: 'DELETE',
+  });
+
+  return { success: result.code };
+}
+
 export async function queryTableNames(params?: any) {
   const result = await request<SYSTEM.Page<SYSTEM.TableName>>('/api-user/tables/names', {
     method: 'GET',

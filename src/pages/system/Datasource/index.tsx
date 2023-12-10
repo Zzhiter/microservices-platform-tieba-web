@@ -16,6 +16,7 @@ import {
   queryTableNames,
   queryTableColumns,
   updateTables,
+  deleteRecord,
 } from '@/services/system/api'; // 替换为实际的 API 调用方法
 
 const waitTime = (time: number = 100) => {
@@ -171,7 +172,7 @@ export default () => {
     }
   }, [selectedTableName]);
 
-  const last_column: any = {
+  const optionColumn: any = {
     title: '操作',
     valueType: 'option',
     width: 200,
@@ -196,13 +197,13 @@ export default () => {
 
   // in your component or wherever you want to trigger the delete
   const handleDelete = async (recordId: number, tableName: string) => {
+    setLoading(true);
     const deleteResult = await deleteRecord(recordId, tableName);
-
-    if (deleteResult.success) {
-      console.log('Record deleted successfully.');
-      // Perform additional actions if needed, such as refreshing the data.
+    setLoading(false);
+    if (deleteResult.success !== -1) {
+      message.success('记录删除成功！');
     } else {
-      console.error('Error deleting record.');
+      message.error('记录删除失败！');
     }
   };
 
@@ -212,7 +213,7 @@ export default () => {
       dataIndex: field.fieldName,
       key: field.fieldName,
     }));
-    res.push(last_column);
+    res.push(optionColumn);
     return res;
   };
 
@@ -336,14 +337,7 @@ export default () => {
                     message.error(`Failed to save data: ${res.message}`);
                   } else {
                     // Update was successful
-                    // Provide feedback to the user if needed
                     message.success('Data saved successfully');
-                    // // Update the corresponding row in dataSource with the new data
-                    // setDataSource((prevData) =>
-                    //   prevData.map((item) =>
-                    //     item.id === rowKey ? { ...item, ...data } : item
-                    //   )
-                    // );
                   }
                 } catch (error) {
                   // Handle unexpected errors during the update
