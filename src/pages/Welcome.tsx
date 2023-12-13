@@ -59,7 +59,7 @@ const Welcome: React.FC = () => {
 
   return (
     <PageContainer
-      subTitle="前后端分离的微服务架构"
+      subTitle="基础业务平台"
       tags={
         <>
           <Tag color="blue">简单</Tag>
@@ -67,7 +67,7 @@ const Welcome: React.FC = () => {
         </>
       }
     >
-      <RcResizeObserver
+      {/* <RcResizeObserver
         key="resize-observer"
         onResize={(offset) => {
           setResponsive(offset.width < 596);
@@ -221,7 +221,7 @@ const Welcome: React.FC = () => {
             />
           </Card>
         </Col>
-      </Row>
+      </Row> */}
     </PageContainer>
   );
 };

@@ -6,7 +6,6 @@ const Footer: React.FC = () => {
   const intl = useIntl();
   const defaultMessage = intl.formatMessage({
     id: 'app.copyright.produced',
-    // defaultMessage: 'zlt版权所有：https://gitee.com/zlt2000/microservices-platform',
     defaultMessage: 'buaa-soft',
   });
 
